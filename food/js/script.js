@@ -221,4 +221,62 @@ document.addEventListener('DOMContentLoaded', () => {
         27,
         "menu__item"
     ).render();
+
+    //Forms
+
+    const forms = document.querySelectorAll('form');
+
+    const message = {
+        loading: "Loading",
+        success: "Success",
+        failure: 'Error'
+    };
+
+    forms.forEach(form => {
+        postData(form);
+    })
+
+    function postData(form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const statusMassage = document.createElement('div');
+            statusMassage.classList.add('status');
+            statusMassage.textContent = message.loading;
+            form.append(statusMassage);
+
+            const request = new XMLHttpRequest();
+            request.open('POST', 'server.php');
+
+            // request.setRequestHeader('Content-type', 'multipart/data'); //for FormData we do not use headers
+            request.setRequestHeader('Content-type', 'aplication/json');
+            const formData = new FormData(form);
+            
+            const objectData = {};
+            formData.forEach((value, key) => {
+                objectData[key] = value;
+            });
+            console.log(objectData);
+
+            const jsonData = JSON.stringify(objectData);
+            console.log(jsonData);
+
+            request.send(jsonData);
+
+            request.addEventListener('load', () => {
+                if(request.status === 200) {
+                    console.log(request.response); 
+                    statusMassage.textContent = message.success;
+                    //Reset form fields
+                    form.reset();
+                    setTimeout(() => {
+                        statusMassage.remove();
+                    }, 3000);
+                } else {
+                    statusMassage.textContent = message.failure;
+                }
+            })
+        });
+    }
+    
 });
