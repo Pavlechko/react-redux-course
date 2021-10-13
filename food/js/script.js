@@ -96,8 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //Modal window
 
     const modalTrigger = document.querySelectorAll("[data-modal]"),
-          modal = document.querySelector('.modal'),
-          modalClose = document.querySelector('[data-close]');
+          modal = document.querySelector('.modal');
 
 
     function openModal() {
@@ -119,12 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.add('hide');
         modal.classList.remove('show');
         document.body.style.overflow = '';
-    }
-
-    modalClose.addEventListener('click', closeModal); 
+    }   
     
     modal.addEventListener('click', (event) => {
-        if (event.target === modal) {
+        if (event.target === modal || event.target.getAttribute('data-close') == "") {
             closeModal();
         }
     });
@@ -135,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // const modalTimerId = setTimeout(openModal, 60000);
+    const modalTimerId = setTimeout(openModal, 60000);
 
     function showModalByScroll(){        
         if(window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
@@ -227,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const forms = document.querySelectorAll('form');
 
     const message = {
-        loading: "Loading",
+        loading: "img/form/spiner.svg",
         success: "Success",
         failure: 'Error'
     };
@@ -240,9 +237,12 @@ document.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            const statusMassage = document.createElement('div');
-            statusMassage.classList.add('status');
-            statusMassage.textContent = message.loading;
+            const statusMassage = document.createElement('img');
+            statusMassage.src = message.loading;
+            statusMassage.style.cssText = `
+                display: block;
+                margin: 0 auto;
+            `;
             form.append(statusMassage);
 
             const request = new XMLHttpRequest();
@@ -266,17 +266,40 @@ document.addEventListener('DOMContentLoaded', () => {
             request.addEventListener('load', () => {
                 if(request.status === 200) {
                     console.log(request.response); 
-                    statusMassage.textContent = message.success;
+                    showThanksModal(message.success);
                     //Reset form fields
-                    form.reset();
-                    setTimeout(() => {
-                        statusMassage.remove();
-                    }, 3000);
+                    form.reset();                    
+                    statusMassage.remove();
+                    
                 } else {
-                    statusMassage.textContent = message.failure;
+                    showThanksModal(message.failure);
                 }
             })
         });
+    }
+
+    function showThanksModal(message) {
+        const prevModalDialog = document.querySelector(".modal__dialog");
+
+        prevModalDialog.classList.add('hide');
+        openModal();
+
+        const thanksModal = document.createElement('div');
+        thanksModal.classList.add('modal__dialog');
+        thanksModal.innerHTML = `
+            <div class="modal__content">
+                <div class="modal__close" data-close>&times;</div>
+                <div class="modal__title">${message}</div>
+            </div>
+        `;
+
+        document.querySelector(".modal").append(thanksModal);
+        setTimeout(() => {
+            thanksModal.remove();
+            prevModalDialog.classList.add("show");
+            prevModalDialog.classList.remove("hide");
+            closeModal();
+        }, 4000)
     }
     
 });
