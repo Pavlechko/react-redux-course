@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTimerId = setTimeout(openModal, 60000);
 
     function showModalByScroll(){        
-        if(window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+        if(window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) {
             openModal();
             window.removeEventListener('scroll', showModalByScroll);
         }        
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const forms = document.querySelectorAll('form');
 
     const message = {
-        loading: "img/form/spiner.svg",
+        loading: "img/form/spinner.svg",
         success: "Success",
         failure: 'Error'
     };
@@ -243,38 +243,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 display: block;
                 margin: 0 auto;
             `;
-            form.append(statusMassage);
+            form.insertAdjacentElement("afterend", statusMassage);            
 
-            const request = new XMLHttpRequest();
-            request.open('POST', 'server.php');
-
-            // request.setRequestHeader('Content-type', 'multipart/data'); //for FormData we do not use headers
-            request.setRequestHeader('Content-type', 'aplication/json');
             const formData = new FormData(form);
             
             const objectData = {};
             formData.forEach((value, key) => {
                 objectData[key] = value;
             });
-            console.log(objectData);
 
-            const jsonData = JSON.stringify(objectData);
-            console.log(jsonData);
-
-            request.send(jsonData);
-
-            request.addEventListener('load', () => {
-                if(request.status === 200) {
-                    console.log(request.response); 
-                    showThanksModal(message.success);
-                    //Reset form fields
-                    form.reset();                    
-                    statusMassage.remove();
-                    
-                } else {
-                    showThanksModal(message.failure);
-                }
+            fetch('server.php', {
+                method: "POST",
+                headers: {
+                    'Content-type': 'aplication/json'
+                },
+                body: JSON.stringify(objectData)
             })
+                .then(data => data.text())
+                .then(data => {
+                    console.log(data); 
+                    showThanksModal(message.success);
+                    statusMassage.remove();
+                })
+                .catch(() => {
+                    showThanksModal(message.failure);
+                })
+                .finally(() => {
+                    form.reset();
+                })
         });
     }
 
@@ -301,5 +297,4 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModal();
         }, 4000)
     }
-    
 });
