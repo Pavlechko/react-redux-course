@@ -186,6 +186,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const getResource = async url => {
+        const res = await fetch(url);
+
+        if (!res.ok) {
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+        }
+
+        return await res.json();
+    };
+
     new MenuItem(
         "img/tabs/vegy.jpg",
         "vegy",
@@ -230,10 +240,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     forms.forEach(form => {
-        postData(form);
-    })
+        bindPostData(form);
+    });
 
-    function postData(form) {
+    const postData = async (url, data) => {
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: data
+        });
+
+        return await res.json();
+    };
+
+    function bindPostData(form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -247,19 +269,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const formData = new FormData(form);
             
-            const objectData = {};
-            formData.forEach((value, key) => {
-                objectData[key] = value;
-            });
-
-            fetch('server.php', {
-                method: "POST",
-                headers: {
-                    'Content-type': 'aplication/json'
-                },
-                body: JSON.stringify(objectData)
-            })
-                .then(data => data.text())
+            const jsonData = JSON.stringify(Object.fromEntries(formData.entries()));
+            
+            postData("http://localhost:3000/requests", jsonData)
                 .then(data => {
                     console.log(data); 
                     showThanksModal(message.success);
@@ -295,6 +307,10 @@ document.addEventListener('DOMContentLoaded', () => {
             prevModalDialog.classList.add("show");
             prevModalDialog.classList.remove("hide");
             closeModal();
-        }, 4000)
+        }, 4000);
     }
+
+    // fetch('http://localhost:3000/menu')
+    //     .then(data => data.json())
+    //     .then(res => console.log(res));
 });
