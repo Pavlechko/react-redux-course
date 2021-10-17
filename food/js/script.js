@@ -146,14 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Added class for Cards
 
     class MenuItem {
-        constructor(src, alt, subtitle, descr, price, parent, transfer, ...classes) {
+        constructor(src, alt, subtitle, descr, price, parent, ...classes) {
             this.src = src;
             this.alt = alt;
             this.subtitle = subtitle;
             this.descr = descr;
             this.price = price;
             this.parent = document.querySelector(parent);
-            this.transfer = transfer;
+            this.transfer = 27;
             this.classes = classes;
             this.changeToUAH();
         }
@@ -196,38 +196,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return await res.json();
     };
 
-    new MenuItem(
-        "img/tabs/vegy.jpg",
-        "vegy",
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        9,
-        ".menu .container",
-        27,
-        "menu__item"
-    ).render();
-
-    new MenuItem(
-        "img/tabs/elite.jpg",
-        "elite",
-        'Меню “Премиум”',
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-        15,
-        ".menu .container",
-        27,
-        "menu__item"
-    ).render();
-
-    new MenuItem(
-        "img/tabs/post.jpg",
-        "post",
-        'Меню "Постное"',
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-        10,
-        ".menu .container",
-        27,
-        "menu__item"
-    ).render();
+    getResource('http://localhost:3000/menu')
+        .then(data => {
+            data.forEach(({src, alt, subtitle, descr, price}) => {
+                console.log({src, alt, subtitle, descr, price});
+                new MenuItem(src, alt, subtitle, descr, price, ".menu .container").render();
+            });
+        });
 
     //Forms
 
