@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Timer
 
-    const deadline = '2021-11-12';
+    const deadline = '2022-01-19';
 
     function getTimeRemaining(endtime) {
         const t = Date.parse(endtime) - Date.parse(new Date()),
@@ -196,10 +196,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return await res.json();
     };
 
-    getResource('http://localhost:3000/menu')
-        .then(data => {
-            data.forEach(({src, alt, subtitle, descr, price}) => {
-                console.log({src, alt, subtitle, descr, price});
+    // getResource('http://localhost:3000/menu')
+    //     .then(data => {
+    //         data.forEach(({src, alt, subtitle, descr, price}) => {
+    //             new MenuItem(src, alt, subtitle, descr, price, ".menu .container").render();
+    //         });
+    //     });
+
+    axios.get("http://localhost:3000/menu") //Access to the JSON-server 
+        .then(object => {
+            object.data.forEach(({src, alt, subtitle, descr, price}) => {
                 new MenuItem(src, alt, subtitle, descr, price, ".menu .container").render();
             });
         });
@@ -288,4 +294,50 @@ document.addEventListener('DOMContentLoaded', () => {
     // fetch('http://localhost:3000/menu')
     //     .then(data => data.json())
     //     .then(res => console.log(res));
+
+    //Slider
+
+    const slides = document.querySelectorAll(".offer__slide"),
+          slidesCount = slides.length,
+          previousSlide = document.querySelector(".offer__slider-prev"),
+          nextSlide = document.querySelector(".offer__slider-next"),
+          correntSlide = document.querySelector("#current"),
+          totalSlide = document.querySelector("#total"),
+          slideCounter = document.querySelector(".offer__slider-counter");
+
+    let activeSlideIndex = 0;
+    
+    function showSlide(i = 0) {
+
+        slides.forEach(item => item.style.display = 'none');
+        slides[i].style.display = 'block';
+        correntSlide.textContent = getZero(i + 1);
+        totalSlide.textContent = getZero(slidesCount);
+    }
+    
+    showSlide();
+
+    slideCounter.addEventListener('click', (event) => {
+        const target = event.target;
+
+        console.log(target);
+
+        if ((target && target.classList.contains('offer__slider-next')) || (target && target.classList.contains('arrow__next'))) {
+            activeSlideIndex++;
+            if (activeSlideIndex === slidesCount) {
+                activeSlideIndex = 0;
+                showSlide(activeSlideIndex);
+            } else {
+                showSlide(activeSlideIndex);
+            }            
+        } else if ((target && target.classList.contains('offer__slider-prev')) || (target && target.classList.contains('arrow__prev'))) {
+            activeSlideIndex--;
+            if (activeSlideIndex < 0) {
+                activeSlideIndex = slidesCount - 1;
+                showSlide(activeSlideIndex);
+            } else {
+                showSlide(activeSlideIndex);
+            }            
+        }
+    });
 });
